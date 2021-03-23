@@ -1,18 +1,18 @@
 # install_nginx
-# rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-enabled/default
 cp /root/nginx_config /etc/nginx/sites-available/dylews
 ln -s /etc/nginx/sites-available/dylews /etc/nginx/sites-enabled/
 
 # install_database
 service mysql start
-mysql -u root < /root/database_conf.sql
+mysql -u root --skip-password < /root/database_conf.sql
 
 #install_SSL
-# wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
-# mv mkcert-v1.4.3-linux-amd64 usr/local/bin/mkcert
-# chmod +x /usr/local/bin/mkcert
-# mkcert -install
-# cd /root/.local/share/mkcert/ && mkcert dylews
+wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+mv mkcert-v1.4.3-linux-amd64 usr/local/bin/mkcert
+chmod +x /usr/local/bin/mkcert
+mkcert -install
+cd /root/.local/share/mkcert/ && mkcert dylews
 
 
 # install_wordpress
@@ -28,8 +28,13 @@ tar -zxf phpMyAdmin-5.1.0-english.tar.gz
 mv phpMyAdmin-5.1.0-english /var/www/dylews/phpmyadmin
 mv /root/config.inc.php /var/www/dylews/phpmyadmin/
 
-chown -R www-data:www-data /var/www/dylews
-chmod -R 755 /var/www/dylews
+chown -R www-data:www-data /var/www/dylews/
+chmod -R 755 /var/www/dylews/
+
+if [[ $AUTOINDEX == "off" ]]
+then
+	sed -i 's/autoindex on/autoindex off/' /etc/nginx/sites-available/dylews
+fi
 service mysql restart
 service nginx start
 service php7.3-fpm start
